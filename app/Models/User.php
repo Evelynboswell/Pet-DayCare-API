@@ -17,8 +17,33 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
+    protected $table = 'customer';
+    protected $primaryKey = 'customer_id';
+    protected $keyType = 'string';
+    public $incrementing = false;
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($customer) {
+            $latestCustomer = static::latest('customer_id')->first();
+
+            if (!$latestCustomer) {
+                $nextIdNumber = 1;
+            } else {
+                $lastId = (int) str_replace('CUS', '', $latestCustomer->customer_id);
+                $nextIdNumber = $lastId + 1;
+            }
+
+            $customer->customer_id = 'CUS' . $nextIdNumber;
+        });
+    }
     protected $fillable = [
         'name',
+        'phone_number',
+        'gender',
+        'address',
+        'photo',
         'email',
         'password',
     ];
@@ -42,4 +67,8 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+    public function dog()
+    {
+        return $this->hasMany(Dog::class);
+    }
 }
