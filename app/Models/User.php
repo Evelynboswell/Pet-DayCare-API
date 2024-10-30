@@ -8,7 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Authenticatable //implements MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -17,27 +17,9 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $table = 'customer';
+    protected $table = 'customers';
     protected $primaryKey = 'customer_id';
-    protected $keyType = 'string';
-    public $incrementing = false;
-    protected static function boot()
-    {
-        parent::boot();
 
-        static::creating(function ($customer) {
-            $latestCustomer = static::latest('customer_id')->first();
-
-            if (!$latestCustomer) {
-                $nextIdNumber = 1;
-            } else {
-                $lastId = (int) str_replace('CUS', '', $latestCustomer->customer_id);
-                $nextIdNumber = $lastId + 1;
-            }
-
-            $customer->customer_id = 'CUS' . $nextIdNumber;
-        });
-    }
     protected $fillable = [
         'name',
         'phone_number',
@@ -67,8 +49,14 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
     public function dog()
     {
         return $this->hasMany(Dog::class);
+    }
+
+    public function booking()
+    {
+        return $this->hasMany(Booking::class);
     }
 }

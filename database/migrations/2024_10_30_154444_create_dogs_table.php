@@ -11,17 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('customers', function (Blueprint $table) {
-            $table->id('customer_id');
+        Schema::create('dogs', function (Blueprint $table) {
+            $table->id('dog_id');
+            $table->foreignId('customer_id')->constrained('customers', 'customer_id')->onDelete('cascade');
             $table->string('name');
-            $table->string('phone_number')->unique();
-            $table->string('email')->unique();
-            $table->string('address');
+            $table->string('breed');
             $table->string('gender');
-            $table->string('photo');
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
+            $table->string('color');
+            $table->string('age');
+            $table->string('weight');
+            $table->string('medical_condition');
             $table->timestamps();
         });
     }
@@ -31,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('customers');
+        Schema::dropIfExists('dogs');
     }
 };
