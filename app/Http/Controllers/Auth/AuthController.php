@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -31,7 +32,7 @@ class AuthController extends Controller
             'gender' => $fields['gender'],
             'address' => $fields['address'],
             'photo' => $fields['photo'],
-            'password' => bcrypt($fields['photo'])
+            'password' => bcrypt($fields['password'])
         ]);
 
         $token = $user->createToken('doggocare')->plainTextToken;
@@ -49,29 +50,28 @@ class AuthController extends Controller
             'password' => 'required|string'
         ]);
 
+        // Retrieve user by email
         $user = User::where('email', $fields['email'])->first();
 
-        // Password wrong but still able to login
-        if(!$user) {
-            return response()->json(['message' => 'Credentials arent valid'], 401);
+        // Check if user exists and password matches
+        if (!$user || !Hash::check($fields['password'], $user->password)) {
+            return response()->json(['message' => 'Credentials are not valid'], 401);
         }
-        // ERROR, bubu idiot
-        // if (!auth()->attempt($fields)) {
-        //     return response()->json(['message' => 'Credentials arent valid'], 401);
-        // }
 
+        // Create and return token if authentication is successful
         $token = $user->createToken('doggocare')->plainTextToken;
 
-        $response = [
+        return response()->json([
             'user' => $user,
             'token' => $token
-        ];
-        return response($response, 201);
+        ], 201);
     }
 
-    public function logout(Request $request) {
+
+    public function logout(Request $request)
+    {
         $request->user()->currentAccessToken()->delete();
-        
+
         return response()->json(['message' => 'Successfully logged out']);
     }
 }
