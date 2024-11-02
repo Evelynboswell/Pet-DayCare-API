@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\URL;
+use App\Mail\VerifyEmail;
+use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -35,14 +38,34 @@ class AuthController extends Controller
             'password' => bcrypt($fields['password'])
         ]);
 
-        $token = $user->createToken('doggocare')->plainTextToken;
+        $verificationUrl = URL::temporarySignedRoute(
+            'verify-email',
+            now()->addMinutes(60),
+            ['user' => $user->customer_id]
+        );
 
-        $response = [
-            'user' => $user,
-            'token' => $token
-        ];
-        return response($response, 201);
+        Mail::to($user->email)->send(new VerifyEmail($verificationUrl));
+
+        return response()->json(['message' => 'User registered successfully. Please verify your email.'], 201);
     }
+    public function verifyEmail(Request $request, $user)
+    {
+        if (!$request->hasValidSignature()) {
+            return response()->json(['message' => 'Invalid or expired verification link.'], 403);
+        }
+
+        $user = User::findOrFail($user);
+
+        if ($user->email_verified_at) {
+            return response()->json(['message' => 'Email already verified.'], 400);
+        }
+
+        $user->email_verified_at = now();
+        $user->save();
+
+        return response()->json(['message' => 'Email verified successfully.']);
+    }
+
     public function login(Request $request)
     {
         $fields = $request->validate([
@@ -50,15 +73,12 @@ class AuthController extends Controller
             'password' => 'required|string'
         ]);
 
-        // Retrieve user by email
         $user = User::where('email', $fields['email'])->first();
 
-        // Check if user exists and password matches
-        if (!$user || !Hash::check($fields['password'], $user->password)) {
-            return response()->json(['message' => 'Credentials are not valid'], 401);
+        if (!$user || !$user->email_verified_at || !Hash::check($fields['password'], $user->password)) {
+            return response()->json(['message' => 'Invalid credentials or unverified email.'], 401);
         }
 
-        // Create and return token if authentication is successful
         $token = $user->createToken('doggocare')->plainTextToken;
 
         return response()->json([
@@ -66,7 +86,6 @@ class AuthController extends Controller
             'token' => $token
         ], 201);
     }
-
 
     public function logout(Request $request)
     {
