@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
-
+use App\Http\Controllers\Auth\PasswordController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,9 +22,18 @@ Route::post('/register', [AuthController::class, 'register']);
 //Login
 Route::post('/login', [AuthController::class, 'login']);
 
-//Get users (login required)
-Route::group(['middleware' => ['auth:sanctum']], function() {
-    Route::get('/users', [AuthController::class, 'index']);
+//Forgot password
+Route::post('/forgot-password', [PasswordController::class, 'sendResetLinkEmail']);
+
+//Reset password
+Route::post('/reset-password/{token}', [PasswordController::class, 'resetPassword']);
+
+//Users profile (login required)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user', [AuthController::class, 'getUserProfile']);
+    Route::put('/user/{id}/update', [AuthController::class, 'updateUserProfile']);
+    Route::post('/update-password', [PasswordController::class, 'updatePassword']);
+    Route::post('/logout', [AuthController::class, 'logout']);
 });
 
 Route::get('/email/verify/{user}', [AuthController::class, 'verifyEmail'])->name('verify-email');

@@ -24,7 +24,7 @@ class AuthController extends Controller
             'email' => 'required|string|unique:customers',
             'gender' => 'required|string',
             'address' => 'required|string',
-            'photo' => 'string',
+            'photo' => 'nullable|string',
             'password' => 'required|string'
         ]);
 
@@ -34,7 +34,7 @@ class AuthController extends Controller
             'email' => $fields['email'],
             'gender' => $fields['gender'],
             'address' => $fields['address'],
-            'photo' => $fields['photo'],
+            'photo' => $fields['photo'] ?? null,
             'password' => bcrypt($fields['password'])
         ]);
 
@@ -87,10 +87,39 @@ class AuthController extends Controller
         ], 201);
     }
 
-    public function logout(Request $request)
+    public function getUserProfile(Request $request)
     {
+        return response()->json($request->user(), 200);
+    }
+
+    public function updateUserProfile(Request $request, $id)
+    {
+        // Ensure the user can only update their own profile
+        if ($request->user()->customer_id != $id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $fields = $request->validate([
+            'name' => 'sometimes|string',
+            'phone_number' => 'sometimes|string|unique:customers,phone_number,' . $id . ',customer_id',
+            'email' => 'sometimes|string|email|unique:customers,email,' . $id . ',customer_id',
+            'gender' => 'sometimes|string',
+            'address' => 'sometimes|string',
+            'photo' => 'sometimes|string'
+        ]);
+
+        $user = $request->user();
+
+        // Update fields if provided
+        $user->update($fields);
+
+        return response()->json(['message' => 'Profile updated successfully', 'user' => $user], 200);
+    }
+
+    public function logout(Request $request) {
         $request->user()->currentAccessToken()->delete();
 
-        return response()->json(['message' => 'Successfully logged out']);
+        return response()->json(['message' => 'Successfully logged out'], 200);
     }
+
 }
