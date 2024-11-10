@@ -111,7 +111,7 @@
 
         button {
             margin-top: 20px;
-            margin-left: 120px; 
+            margin-left: 120px;
             padding: 8px 50px;
             font-size: 22px;
             color: #ffffff;
@@ -140,23 +140,24 @@
         <img id="icon2" src="images/pawIcons.png" alt="paw prints icon">
     </div>
     <div class="form_div">
-        <form method="POST" action="{{ route('login') }}">
-            @csrf
-            <h2>Login</h2>
-            <div class="input-group">
-                <span class="icon">@include('components.svg_user1')</span>
-                <input type="text" placeholder="Email" required>
-            </div>
-            <div class="input-group">
-                <span class="icon">@include('components.svg_password1')</span>
-                <input type="password" placeholder="Password" required>
-            </div>
-            <div class="links-group">
-                <a href="{{route('forgotPassword')}}" class="links">Forgot Password?</a>
-                <a href="{{ route('registerView') }}" class="links">No account yet?</a>
-            </div>
-            <button type="submit">Login</button>
-        </form>
+    <form method="POST" action="{{ route('login') }}">
+    @csrf
+    <h2>Login</h2>
+    <div class="input-group">
+        <span class="icon">@include('components.svg_user1')</span>
+        <input type="text" name="email" placeholder="Email" required>
+    </div>
+    <div class="input-group">
+        <span class="icon">@include('components.svg_password1')</span>
+        <input type="password" name="password" placeholder="Password" required>
+    </div>
+    <div class="links-group">
+        <a href="{{ route('forgotPassword') }}" class="links">Forgot Password?</a>
+        <a href="{{ route('register.form') }}" class="links">No account yet?</a>
+    </div>
+    <button type="submit">Login</button>
+</form>
+
     </div>
 
     <!-- Include Bootstrap JS -->

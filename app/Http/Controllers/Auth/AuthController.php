@@ -48,6 +48,7 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'User registered successfully. Please verify your email.'], 201);
     }
+
     public function verifyEmail(Request $request, $user)
     {
         if (!$request->hasValidSignature()) {
@@ -57,34 +58,46 @@ class AuthController extends Controller
         $user = User::findOrFail($user);
 
         if ($user->email_verified_at) {
-            return response()->json(['message' => 'Email already verified.'], 400);
+            return redirect()->route('loginView')->with('message', 'Email already verified.');
         }
 
         $user->email_verified_at = now();
         $user->save();
 
-        return response()->json(['message' => 'Email verified successfully.']);
+        return redirect()->route('loginView')->with('message', 'Email verified successfully. Please log in.');
     }
 
     public function login(Request $request)
     {
         $fields = $request->validate([
-            'email' => 'required|string',
+            'email' => 'required|string|email',
             'password' => 'required|string'
         ]);
 
         $user = User::where('email', $fields['email'])->first();
 
         if (!$user || !$user->email_verified_at || !Hash::check($fields['password'], $user->password)) {
-            return response()->json(['message' => 'Invalid credentials or unverified email.'], 401);
+            $errorMessage = ['loginError' => 'Invalid credentials or unverified email.'];
+
+            if ($request->expectsJson()) {
+                return response()->json($errorMessage, 401);
+            }
+
+            return back()->withErrors($errorMessage)->withInput();
         }
 
         $token = $user->createToken('doggocare')->plainTextToken;
 
-        return response()->json([
-            'user' => $user,
-            'token' => $token
-        ], 201);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'user' => $user,
+                'token' => $token
+            ], 200);
+        }
+
+        session(['auth_token' => $token]);
+
+        return redirect()->route('dashboard')->with('message', 'Login successful!');
     }
 
     public function getUserProfile(Request $request)
@@ -94,7 +107,6 @@ class AuthController extends Controller
 
     public function updateUserProfile(Request $request, $id)
     {
-        // Ensure the user can only update their own profile
         if ($request->user()->customer_id != $id) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
@@ -110,10 +122,20 @@ class AuthController extends Controller
 
         $user = $request->user();
 
-        // Update fields if provided
         $user->update($fields);
 
         return response()->json(['message' => 'Profile updated successfully', 'user' => $user], 200);
+    }
+
+    public function deleteAccount(Request $request)
+    {
+        $user = $request->user();
+
+        $user->delete();
+
+        $request->user()->tokens()->delete();
+
+        return response()->json(['message' => 'Account deleted successfully.'], 200);
     }
 
     public function logout(Request $request) {

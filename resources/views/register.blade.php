@@ -143,42 +143,42 @@
     </div>
     <div class="form_div">
         <form method="POST" action="{{ route('register') }}">
-            @csrf
-            <h2>Register</h2>
-            <div class="input-group" id="name">
-                <span class="icon">@include('components.svg_user2')</span>
-                <input type="text" placeholder="Name" required>
-            </div>
-            <div class="input-group" id="gender-group">
-                <span class="icon">@include('components.svg_gender')</span>
-                <select>
-                    <option selected value="Male">Male</option>
-                    <option value="Female">Female</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <span class="icon">@include('components.svg_mail')</span>
-                <input type="email" placeholder="Email" required>
-            </div>
-            <div class="input-group">
-                <span class="icon">@include('components.svg_phone')</span>
-                <input type="text" placeholder="Whatsapp" required>
-            </div>
-            <div class="input-group">
-                <span class="icon">@include('components.svg_address')</span>
-                <input type="text" placeholder="Address" required>
-            </div>
-            <div class="input-group" id="password">
-                <span class="icon">@include('components.svg_password2')</span>
-                <input type="password" placeholder="Password" required>
-            </div>
-            <div class="input-group" id="confirmPassword">
-                <span class="icon">@include('components.svg_confirmPassword')</span>
-                <input type="password" placeholder="Confirm Password" required>
-            </div>
-            <a href="{{ route('loginView') }}" class="hasAccount">Already have an account?</a>
-            <button type="submit">Register</button>
-        </form>
+        @csrf
+        <h2>Register</h2>
+        <div class="input-group" id="name">
+            <span class="icon">@include('components.svg_user2')</span>
+            <input type="text" name="name" placeholder="Name" required>
+        </div>
+        <div class="input-group" id="gender-group">
+            <span class="icon">@include('components.svg_gender')</span>
+            <select name="gender" required>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <span class="icon">@include('components.svg_mail')</span>
+            <input type="email" name="email" placeholder="Email" required>
+        </div>
+        <div class="input-group">
+            <span class="icon">@include('components.svg_phone')</span>
+            <input type="text" name="phone_number" placeholder="Whatsapp" required>
+        </div>
+        <div class="input-group">
+            <span class="icon">@include('components.svg_address')</span>
+            <input type="text" name="address" placeholder="Address" required>
+        </div>
+        <div class="input-group" id="password">
+            <span class="icon">@include('components.svg_password2')</span>
+            <input type="password" name="password" placeholder="Password" required>
+        </div>
+        <div class="input-group" id="confirmPassword">
+            <span class="icon">@include('components.svg_confirmPassword')</span>
+            <input type="password" name="password_confirmation" placeholder="Confirm Password" required>
+        </div>
+        <a href="{{ route('loginView') }}" class="hasAccount">Already have an account?</a>
+        <button type="submit">Register</button>
+    </form>
     </div>
 
     <!-- Include Bootstrap JS -->
@@ -187,6 +187,3 @@
 </body>
 
 </html>
-
-
-

@@ -14,13 +14,11 @@ class PasswordController extends Controller
     {
         $request->validate(['email' => 'required|email|exists:customers,email']);
 
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
+        $status = Password::sendResetLink($request->only('email'));
 
         return $status === Password::RESET_LINK_SENT
-            ? response()->json(['message' => 'Password reset link sent to your email.'])
-            : response()->json(['message' => 'Failed to send reset link.'], 500);
+            ? back()->with('status', 'Password reset link sent to your email.')
+            : back()->withErrors(['email' => 'Failed to send reset link. Please try again.']);
     }
 
     public function resetPassword(Request $request, $token)

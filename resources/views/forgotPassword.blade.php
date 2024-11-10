@@ -84,7 +84,7 @@
 
         button {
             margin-top: 20px;
-            margin-left: 120px; 
+            margin-left: 120px;
             padding: 8px 50px;
             font-size: 22px;
             color: #ffffff;
@@ -109,8 +109,8 @@
     </div>
     <div class="form_div">
         {{-- <form method="POST" action="{{ route('forgotPassword') }}"> --}}
-        <form method="POST" action="{{ route('#') }}">
-            @csrf
+        <form method="POST" action="{{ route('forgotPassword.post') }}">
+        @csrf
             <h2>Email</h2>
             <div class="input-group">
                 <span class="icon">@include('components.svg_user1')</span>

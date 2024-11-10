@@ -34,6 +34,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/user/{id}/update', [AuthController::class, 'updateUserProfile']);
     Route::post('/update-password', [PasswordController::class, 'updatePassword']);
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::delete('/delete', [AuthController::class, 'deleteAccount']);
 });
 
 Route::get('/email/verify/{user}', [AuthController::class, 'verifyEmail'])->name('verify-email');
