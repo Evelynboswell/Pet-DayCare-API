@@ -1,0 +1,1 @@
+<img src="{{ asset('images/svg_confirmPassword2.svg') }}" alt="Confirm Password Purple Icon">
