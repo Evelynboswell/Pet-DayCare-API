@@ -16,7 +16,10 @@ return new class extends Migration
             $table->foreignId('dog_id')->constrained('dogs', 'dog_id')->onDelete('cascade');
             $table->foreignId('boarding_id')->constrained('boardings', 'boarding_id')->onDelete('cascade');
             $table->date('booking_date');
+            $table->time('start_time');
+            $table->time('end_time');
             $table->integer('total_price');
+            $table->string('status')->default('active');
             $table->timestamps();
         });
     }
