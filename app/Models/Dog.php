@@ -24,4 +24,8 @@ class Dog extends Model
     {
         return $this->belongsTo(User::class, 'customer_id', 'customer_id');
     }
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class, 'dog_id');
+    }
 }

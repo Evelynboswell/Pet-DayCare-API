@@ -17,4 +17,8 @@ class Boarding extends Model
         'price',
         'current_stock'
     ];
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class, 'boarding_id', 'boarding_id');
+    }
 }

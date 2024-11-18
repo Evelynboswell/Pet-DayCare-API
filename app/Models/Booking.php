@@ -26,27 +26,16 @@ class Booking extends Model
     protected $dates = [
         'booking_date',
     ];
-
-    protected $appends = ['is_active'];
-
-    public function getIsActiveAttribute()
-    {
-        $endDateTime = Carbon::createFromFormat('Y-m-d H:i', $this->booking_date->format('Y-m-d') . ' ' . $this->end_time);
-        return Carbon::now()->lessThanOrEqualTo($endDateTime) && $this->status === 'active';
-    }
-
-    public function dog()
+    public function dogs()
     {
         return $this->belongsTo(Dog::class, 'dog_id', 'dog_id');
     }
-
-    public function boarding()
+    public function boardings()
     {
         return $this->belongsTo(Boarding::class, 'boarding_id', 'boarding_id');
     }
-
-    public function customer()
+    public function customers()
     {
-        return $this->hasOneThrough(User::class, Dog::class, 'dog_id', 'customer_id', 'dog_id', 'customer_id');
+        return $this->hasOneThrough(User::class, Dog::class, 'dog_id', 'customer_id');
     }
 }

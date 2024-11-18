@@ -153,7 +153,7 @@
     </div>
     <div class="links-group">
         <a href="{{ route('forgotPassword') }}" class="links">Forgot Password?</a>
-        <a href="{{ route('register.form') }}" class="links">No account yet?</a>
+        <a href="{{ route('registerView') }}" class="links">No account yet?</a>
     </div>
     <button type="submit">Login</button>
 </form>

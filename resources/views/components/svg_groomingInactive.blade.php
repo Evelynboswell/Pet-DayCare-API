@@ -1,0 +1,1 @@
+<img src="{{ asset('images/svg_groomingInactive.svg') }}" alt="Grooming Icon">

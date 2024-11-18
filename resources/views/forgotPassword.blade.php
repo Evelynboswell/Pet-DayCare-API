@@ -1,7 +1,3 @@
-@php
-    use Illuminate\Support\Facades\Auth;
-@endphp
-
 <!DOCTYPE html>
 <html>
 
@@ -9,46 +5,32 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css"rel="stylesheet">
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css"rel="stylesheet">
     <title>Forgot Password</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
         body {
             background-color: #430090;
             overflow: hidden;
         }
-
-        .text_div {
-            padding-top: 50px;
-            margin-top: -700px;
-            color: white;
-            text-align: center;
-        }
-
-        .text_div h1 {
-            font-size: 60px;
-            font-weight: bold;
-            margin: auto;
-        }
-
-        .text_div h2 {
-            font-size: 40px;
-            font-weight: bold;
-            margin: auto;
-        }
-
         .form_div {
-            position: relative;
             margin: auto;
-            margin-top: 20px;
+            margin-top: 100px;
             background-color: white;
-            height: 350px;
-            width: 470px;
+            height: 400px;
+            width: 500px;
             padding: 30px;
             border-radius: 15px;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
         }
 
+        .form_div h1 {
+            color: #8000ff;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
         .form_div h2 {
             color: #7700FF;
             margin-bottom: 15px;
@@ -83,9 +65,9 @@
         }
 
         button {
-            margin-top: 20px;
-            margin-left: 120px;
-            padding: 8px 50px;
+            margin-top: 20px; 
+            margin-left: 100px;
+            padding: 8px 30px;
             font-size: 22px;
             color: #ffffff;
             font-weight: bold;
@@ -103,26 +85,22 @@
 </head>
 
 <body>
-    <div class="text_div">
-        <h1>Ehmm?</h1>
-        <h2>Forgot Your Password?</h2>
-    </div>
+
     <div class="form_div">
-        {{-- <form method="POST" action="{{ route('forgotPassword') }}"> --}}
-        <form method="POST" action="{{ route('forgotPassword.post') }}">
-        @csrf
-            <h2>Email</h2>
+        <form>
+            @csrf
+            <h2>Forgot Your Password?</h2>
             <div class="input-group">
                 <span class="icon">@include('components.svg_user1')</span>
-                <input type="text" placeholder="Email" required>
+                <input type="text" name="email" placeholder="Email" required>
             </div>
             <div class="input-group">
                 <span class="icon">@include('components.svg_password1')</span>
-                <input type="password" placeholder="New Password" required>
+                <input type="password" name="password" placeholder="New Password" required>
             </div>
             <div class="input-group">
                 <span class="icon">@include('components.svg_confirmPassword2')</span>
-                <input type="password" placeholder="Confirm New Password" required>
+                <input type="password" name="password" placeholder="Confirm New Password" required>
             </div>
             <button type="submit">Change Password</button>
         </form>

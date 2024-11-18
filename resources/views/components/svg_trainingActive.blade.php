@@ -1,0 +1,1 @@
+<img src="{{ asset('images/svg_trainingActive.svg') }}" alt="Training Icon">

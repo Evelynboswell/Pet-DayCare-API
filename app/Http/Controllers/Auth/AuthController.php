@@ -3,18 +3,27 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\User;
+use App\Mail\VerifyEmail;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\URL;
-use App\Mail\VerifyEmail;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
     public function index()
     {
         return response()->json(User::latest()->get());
+    }
+    public function registerView()
+    {
+        return view('register');
+    }
+    public function loginView()
+    {
+        return view('login');
     }
     public function register(Request $request)
     {
@@ -24,7 +33,6 @@ class AuthController extends Controller
             'email' => 'required|string|unique:customers',
             'gender' => 'required|string',
             'address' => 'required|string',
-            'photo' => 'nullable|string',
             'password' => 'required|string'
         ]);
 
@@ -34,7 +42,7 @@ class AuthController extends Controller
             'email' => $fields['email'],
             'gender' => $fields['gender'],
             'address' => $fields['address'],
-            'photo' => $fields['photo'] ?? null,
+            'photo' => null,
             'password' => bcrypt($fields['password'])
         ]);
 
@@ -46,7 +54,7 @@ class AuthController extends Controller
 
         Mail::to($user->email)->send(new VerifyEmail($verificationUrl));
 
-        return response()->json(['message' => 'User registered successfully. Please verify your email.'], 201);
+        return response()->redirectToRoute('verifyEmail');
     }
 
     public function verifyEmail(Request $request, $user)
@@ -71,7 +79,7 @@ class AuthController extends Controller
     {
         $fields = $request->validate([
             'email' => 'required|string|email',
-            'password' => 'required|string'
+            'password' => 'required|string',
         ]);
 
         $user = User::where('email', $fields['email'])->first();
@@ -82,22 +90,10 @@ class AuthController extends Controller
             if ($request->expectsJson()) {
                 return response()->json($errorMessage, 401);
             }
-
             return back()->withErrors($errorMessage)->withInput();
         }
-
-        $token = $user->createToken('doggocare')->plainTextToken;
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'user' => $user,
-                'token' => $token
-            ], 200);
-        }
-
-        session(['auth_token' => $token]);
-
-        return redirect()->route('dashboard')->with('message', 'Login successful!');
+        auth()->login($user);
+        return redirect()->route('dashboard');
     }
 
     public function getUserProfile(Request $request)
@@ -107,41 +103,130 @@ class AuthController extends Controller
 
     public function updateUserProfile(Request $request, $id)
     {
-        if ($request->user()->customer_id != $id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+        if (auth()->id() != $id) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+            return back()->withErrors(['error' => 'Unauthorized'])->withInput();
         }
-
         $fields = $request->validate([
             'name' => 'sometimes|string',
             'phone_number' => 'sometimes|string|unique:customers,phone_number,' . $id . ',customer_id',
-            'email' => 'sometimes|string|email|unique:customers,email,' . $id . ',customer_id',
             'gender' => 'sometimes|string',
             'address' => 'sometimes|string',
-            'photo' => 'sometimes|string'
         ]);
-
-        $user = $request->user();
-
+        $user = auth()->user();
         $user->update($fields);
 
-        return response()->json(['message' => 'Profile updated successfully', 'user' => $user], 200);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Profile updated successfully.',
+                'user' => $user
+            ], 200);
+        }
+        return redirect()->route('profile.edit')->with('success', 'Profile updated successfully.');
     }
 
     public function deleteAccount(Request $request)
     {
         $user = $request->user();
-
         $user->delete();
-
-        $request->user()->tokens()->delete();
-
-        return response()->json(['message' => 'Account deleted successfully.'], 200);
+        $user->tokens()->delete();
+        if ($request->wantsJson()) {
+            return response()->json(['message' => 'Account deleted successfully.'], 200);
+        }
+        return redirect()->route('welcomeDoggoCare')->with('status', 'Account deleted successfully.');
     }
 
-    public function logout(Request $request) {
+    public function logout(Request $request)
+    {
         $request->user()->currentAccessToken()->delete();
 
         return response()->json(['message' => 'Successfully logged out'], 200);
     }
+    public function logoutWeb(Request $request)
+    {
+        Auth::logout();
 
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('welcomeDoggoCare');
+    }
+
+    public function dashboard()
+    {
+        $user = auth()->user();
+
+        $bookings = $user->bookings()
+            ->with(['dogs', 'boardings'])
+            ->get();
+
+        return view('dashboard', compact('bookings'));
+    }
+    public function editProfile()
+    {
+        $user = auth()->user();
+        if (!$user) {
+            abort(403, 'No authenticated user found');
+        }
+        return view('profile.edit', compact('user'));
+    }
+    public function updatePassword(Request $request, $id)
+    {
+        if (auth()->id() != $id) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+            return back()->withErrors(['error' => 'Unauthorized'])->withInput();
+        }
+
+        $fields = $request->validate([
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:8|confirmed',
+        ], [
+            'new_password.confirmed' => 'The new password confirmation does not match.',
+        ]);
+
+        $user = auth()->user();
+
+        if (!\Hash::check($fields['current_password'], $user->password)) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Current password is incorrect.'], 400);
+            }
+            return back()->withErrors(['current_password' => 'Current password is incorrect.'])->withInput();
+        }
+
+        $user->password = \Hash::make($fields['new_password']);
+        $user->save();
+
+        if ($request->expectsJson()) {
+            return response()->json(['message' => 'Password updated successfully.'], 200);
+        }
+
+        return redirect()->route('profile.edit')->with('success', 'Password updated successfully.');
+    }
+    public function updatePhoto(Request $request, $id)
+    {
+        $request->validate([
+            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:4096']);
+
+        $user = User::findOrFail($id);
+
+        if ($request->hasFile('photo')) {
+            if ($user->photo && file_exists(public_path('storage/' . $user->photo))) {
+                unlink(public_path('storage/' . $user->photo)); 
+            }
+
+            $photo = $request->file('photo');
+
+            $photoName = time() . '.' . $photo->getClientOriginalExtension();
+
+            $photo->storeAs('public/profile_photos', $photoName);
+
+            $user->photo = 'profile_photos/' . $photoName;
+            $user->save(); 
+        }
+        return redirect()->route('profile.edit')->with('success', 'Profile photo updated successfully');
+    }
 }
