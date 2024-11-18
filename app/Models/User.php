@@ -42,4 +42,18 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function dogs()
+    {
+        return $this->hasMany(Dog::class, 'customer_id');
+    }
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class, 'dog_id');
+    }
+    public function getRouteKeyName()
+    {
+        return 'customer_id';
+    }
+
 }

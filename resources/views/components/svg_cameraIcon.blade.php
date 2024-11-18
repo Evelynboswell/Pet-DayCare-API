@@ -1,0 +1,1 @@
+<img src="{{ asset('images/svg_cameraIcon.svg') }}" alt="Camera Icon">

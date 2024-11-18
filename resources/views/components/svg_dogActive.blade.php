@@ -1,0 +1,1 @@
+<img src="{{ asset('images/svg_dogActive.svg') }}" alt="Dog Icon">
