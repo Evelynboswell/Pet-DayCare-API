@@ -17,8 +17,15 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
+    protected $table = 'customers';
+    protected $primaryKey = 'customer_id';
+
     protected $fillable = [
         'name',
+        'phone_number',
+        'gender',
+        'address',
+        'photo',
         'email',
         'password',
     ];
@@ -45,11 +52,12 @@ class User extends Authenticatable
 
     public function dogs()
     {
-        return $this->hasMany(Dog::class, 'customer_id');
+        return $this->hasMany(Dog::class, 'customer_id', 'customer_id');
     }
-    public function bookings()
+
+    public function booking()
     {
-        return $this->hasMany(Booking::class, 'dog_id');
+        return $this->hasMany(Booking::class);
     }
     public function getRouteKeyName()
     {
