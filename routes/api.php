@@ -7,6 +7,8 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\DogController;
 use App\Http\Controllers\BoardingController;
 use App\Http\Controllers\BookingController;
+use App\Console\Commands\CheckBookingExpirations;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -52,6 +54,11 @@ Route::get('/email/verify/{user}', [AuthController::class, 'verifyEmail'])->name
 
 Route::get('/boardings', [BoardingController::class, 'index']);
 Route::get('/boardings/{boarding_id}', [BoardingController::class, 'show']);
+
+Route::get('/test-scheduler', function () {
+    Artisan::call('bookings:check-expirations');
+    return response()->json(['message' => 'Scheduler command executed successfully.']);
+});
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();

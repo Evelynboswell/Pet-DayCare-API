@@ -52,7 +52,7 @@ class User extends Authenticatable
 
     public function dogs()
     {
-        return $this->hasMany(Dog::class, 'customer_id');
+        return $this->hasMany(Dog::class, 'customer_id', 'customer_id');
     }
     public function bookings()
     {
