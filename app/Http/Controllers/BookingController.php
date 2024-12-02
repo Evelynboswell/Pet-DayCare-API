@@ -8,9 +8,24 @@ use Illuminate\Http\Request;
 use App\Models\Dog;
 use App\Services\FonnteService;
 use Carbon\Carbon;
+use Midtrans\Config;
+use Midtrans\Snap;
 
 class BookingController extends Controller
 {
+    public function __construct()
+    {
+        // Midtrans configuration
+        Config::$serverKey = config('midtrans.server_key');
+        Config::$isProduction = false;
+        Config::$isSanitized = true;
+        Config::$is3ds = true;
+
+        \Midtrans\Config::$curlOptions = [
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_SSL_VERIFYPEER => 0,
+        ];
+    }
     public function store(Request $request, FonnteService $fonnteService)
     {
         $validatedData = $request->validate([
@@ -46,8 +61,35 @@ class BookingController extends Controller
 
         $customerName = $dog->customer->name;
         $customerPhone = $dog->customer->phone_number;
+        $customerEmail = $dog->customer->email;
         $dogName = $dog->name;
         $boardingName = $boarding->boarding_name;
+
+        $params = [
+            'transaction_details' => [
+                'order_id' => 'BOOK-' . $booking->booking_id,
+                'gross_amount' => $totalPrice,
+            ],
+            'customer_details' => [
+                'first_name' => $customerName,
+                'email' => $customerEmail,
+                'phone' => $customerPhone,
+            ],
+            'item_details' => [
+            [
+                'id' => 'boarding-' . $boarding->boarding_id,
+                'price' => $totalPrice,
+                'quantity' => 1,
+                'name' => $boardingName,
+            ]
+            ],
+        ];
+
+        try {
+            $snapToken = Snap::getSnapToken($params);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to create payment link.', 'error' => $e->getMessage()], 500);
+        }
 
         $upcomingMessage = "Hello, {$customerName}!
     Dont forget {$dogName}'s appointment for:
@@ -76,7 +118,11 @@ class BookingController extends Controller
         $fonnteService->sendMessage($customerPhone, $upcomingMessage, $reminderBeforeStart);
         $fonnteService->sendMessage($customerPhone, $endingMessage, $reminderBeforeEnd);
 
-        return response()->json(['message' => 'Booking created successfully and reminders scheduled.', 'booking' => $booking], 201);
+        return response()->json([
+            'message' => 'Booking created successfully. Please complete your payment.',
+            'booking' => $booking,
+            'payment_link' => 'https://app.sandbox.midtrans.com/snap/v2/vtweb/' . $snapToken,
+        ], 201);
     }
 
     public function index(Request $request)

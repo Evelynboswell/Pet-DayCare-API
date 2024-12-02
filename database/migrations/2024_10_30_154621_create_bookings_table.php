@@ -20,6 +20,8 @@ return new class extends Migration
             $table->time('end_time');
             $table->integer('total_price');
             $table->string('status')->default('active');
+            $table->boolean('start_notification_sent')->default(false);
+            $table->boolean('end_notification_sent')->default(false);
             $table->timestamps();
         });
     }

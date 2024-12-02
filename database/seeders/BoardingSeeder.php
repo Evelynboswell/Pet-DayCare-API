@@ -11,8 +11,8 @@ class BoardingSeeder extends Seeder
     {
         Boarding::insert([
             [
-                'boarding_name' => 'Basic Boarding',
-                'boarding_type' => 'Standard',
+                'boarding_name' => 'Reguler Daycare',
+                'boarding_type' => 'Reguler',
                 'boarding_description' => 'A comfortable stay with basic amenities.',
                 'price' => 50000,
                 'current_stock' => 10,
@@ -20,8 +20,8 @@ class BoardingSeeder extends Seeder
                 'updated_at' => now()
             ],
             [
-                'boarding_name' => 'Luxury Boarding',
-                'boarding_type' => 'Premium',
+                'boarding_name' => 'Luxury Daycare',
+                'boarding_type' => 'Luxury',
                 'boarding_description' => 'Luxurious accommodations with additional amenities.',
                 'price' => 150000,
                 'current_stock' => 5,

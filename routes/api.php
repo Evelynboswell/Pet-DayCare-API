@@ -24,6 +24,9 @@ use App\Console\Commands\CheckBookingExpirations;
 //Register
 Route::post('/register', [AuthController::class, 'register']);
 
+//Verify Email
+Route::get('/email/verify/{user}', [AuthController::class, 'verifyEmail'])->name('verify-email');
+
 //Login
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -50,8 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/bookings/{booking_id}', [BookingController::class, 'show']);
 });
 
-Route::get('/email/verify/{user}', [AuthController::class, 'verifyEmail'])->name('verify-email');
-
+//Boarding 
 Route::get('/boardings', [BoardingController::class, 'index']);
 Route::get('/boardings/{boarding_id}', [BoardingController::class, 'show']);
 
