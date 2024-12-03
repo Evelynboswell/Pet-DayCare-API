@@ -7,26 +7,12 @@ use App\Models\Boarding;
 use Illuminate\Http\Request;
 use App\Models\Dog;
 use App\Services\FonnteService;
+use App\Services\MidtransService;
 use Carbon\Carbon;
-use Midtrans\Config;
-use Midtrans\Snap;
 
 class BookingController extends Controller
 {
-    public function __construct()
-    {
-        // Midtrans configuration
-        Config::$serverKey = config('midtrans.server_key');
-        Config::$isProduction = false;
-        Config::$isSanitized = true;
-        Config::$is3ds = true;
-
-        \Midtrans\Config::$curlOptions = [
-            CURLOPT_SSL_VERIFYHOST => 0,
-            CURLOPT_SSL_VERIFYPEER => 0,
-        ];
-    }
-    public function store(Request $request, FonnteService $fonnteService)
+    public function store(Request $request, FonnteService $fonnteService, MidtransService $midtransService)
     {
         $validatedData = $request->validate([
             'dog_id' => 'required|exists:dogs,dog_id',
@@ -59,52 +45,33 @@ class BookingController extends Controller
 
         $boarding->decrement('current_stock');
 
-        $customerName = $dog->customer->name;
-        $customerPhone = $dog->customer->phone_number;
-        $customerEmail = $dog->customer->email;
-        $dogName = $dog->name;
-        $boardingName = $boarding->boarding_name;
+        $customer = $dog->customer;
 
-        $params = [
-            'transaction_details' => [
-                'order_id' => 'BOOK-' . $booking->booking_id,
-                'gross_amount' => $totalPrice,
-            ],
-            'customer_details' => [
-                'first_name' => $customerName,
-                'email' => $customerEmail,
-                'phone' => $customerPhone,
-            ],
-            'item_details' => [
-            [
-                'id' => 'boarding-' . $boarding->boarding_id,
-                'price' => $totalPrice,
-                'quantity' => 1,
-                'name' => $boardingName,
-            ]
-            ],
-        ];
+        $snapToken = $midtransService->createTransaction($booking, $customer);
 
-        try {
-            $snapToken = Snap::getSnapToken($params);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Failed to create payment link.', 'error' => $e->getMessage()], 500);
+        if (!isset($snapToken['redirect_url'])) {
+            throw new \Exception('Midtrans did not return a payment link.');
         }
 
-        $upcomingMessage = "Hello, {$customerName}!
-    Dont forget {$dogName}'s appointment for:
-    🐾: {$boardingName}
-    📆: {$booking->booking_date}
-    ⏰: {$booking->start_time}
+        $paymentLink = $snapToken['redirect_url'];
 
-    We'll see you soon!
-    With so much LOVE and CARE, DoggoCare ❤";
+        $message = "Hello, {$customer->name}! Your booking for {$dog->name} has been created. Please complete the payment using this link: {$paymentLink}";
+        $fonnteService->sendMessage($customer->phone_number, $message);
 
-        $endingMessage = "Hello, {$customerName}!
-    {$dogName}'s appointment for {$boardingName} is going to end in 15 minutes!
+        $upcomingMessage = "Hello, {$customer->name}!
+Dont forget {$dog->name}'s appointment for:
+🐾: {$boarding->boarding_name}
+📆: {$booking->booking_date}
+⏰: {$booking->start_time}
 
-    Thank you for choosing our services!
-    With so much LOVE and CARE, DoggoCare ❤";
+We'll see you soon!
+With so much LOVE and CARE, DoggoCare ❤";
+
+        $endingMessage = "Hello, {$customer->name}!
+{$dog->name}'s appointment for {$boarding->boarding_name} is going to end in 15 minutes!
+
+Thank you for choosing our services!
+With so much LOVE and CARE, DoggoCare ❤";
 
         $startTimestamp = strtotime("{$booking->booking_date} {$booking->start_time}");
         $endTimestamp = strtotime("{$booking->booking_date} {$booking->end_time}");
@@ -112,17 +79,10 @@ class BookingController extends Controller
         $reminderBeforeStart = $startTimestamp - 3600; // 1 hour before start
         $reminderBeforeEnd = $endTimestamp - 900; // 15 minutes before end
 
-        $confirmationMessage = "Your booking for {$dogName} on {$booking->booking_date} from {$booking->start_time} to {$booking->end_time} has been confirmed!";
-        $fonnteService->sendMessage($customerPhone, $confirmationMessage);
+        $fonnteService->sendMessage($customer->phone_number, $upcomingMessage, $reminderBeforeStart);
+        $fonnteService->sendMessage($customer->phone_number, $endingMessage, $reminderBeforeEnd);
 
-        $fonnteService->sendMessage($customerPhone, $upcomingMessage, $reminderBeforeStart);
-        $fonnteService->sendMessage($customerPhone, $endingMessage, $reminderBeforeEnd);
-
-        return response()->json([
-            'message' => 'Booking created successfully. Please complete your payment.',
-            'booking' => $booking,
-            'payment_link' => 'https://app.sandbox.midtrans.com/snap/v2/vtweb/' . $snapToken,
-        ], 201);
+        return response()->json(['message' => 'Booking created successfully. Payment link sent.', 'payment_link' => $paymentLink, 'booking' => $booking], 201);
     }
 
     public function index(Request $request)

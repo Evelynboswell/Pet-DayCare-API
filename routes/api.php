@@ -36,7 +36,7 @@ Route::post('/forgot-password', [PasswordController::class, 'sendResetLinkEmail'
 //Reset password
 Route::post('/reset-password/{token}', [PasswordController::class, 'resetPassword']);
 
-//Users profile (login required)
+//Authenticated routes (login required)
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'getUserProfile']);
     Route::put('/user/{id}/update', [AuthController::class, 'updateUserProfile']);
@@ -53,10 +53,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/bookings/{booking_id}', [BookingController::class, 'show']);
 });
 
-//Boarding 
+//Boarding
 Route::get('/boardings', [BoardingController::class, 'index']);
 Route::get('/boardings/{boarding_id}', [BoardingController::class, 'show']);
+Route::post('/boardings', [BoardingController::class, 'store']);
 
+//Test Task Scheduler
 Route::get('/test-scheduler', function () {
     Artisan::call('bookings:check-expirations');
     return response()->json(['message' => 'Scheduler command executed successfully.']);

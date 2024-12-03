@@ -27,7 +27,7 @@ class FonnteService
     ];
 
     if ($schedule) {
-        $payload['schedule'] = $schedule; // Unix timestamp for scheduling
+        $payload['schedule'] = $schedule;
     }
 
     $response = Http::withHeaders([
@@ -35,7 +35,7 @@ class FonnteService
     ])->withoutVerifying()->post($this->baseUrl, $payload);
 
     if ($response->failed()) {
-        $errorMessage = $response->body(); // Get the error message from the API
+        $errorMessage = $response->body();
         throw new \Exception('Failed to send WhatsApp message: ' . $errorMessage);
     }
 
