@@ -1,0 +1,1 @@
+<img src="{{ asset('images/svg_arrowLeftActive.svg') }}" alt="Arrow Icon">

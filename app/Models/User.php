@@ -17,8 +17,15 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
+    protected $table = 'customers';
+    protected $primaryKey = 'customer_id';
+
     protected $fillable = [
         'name',
+        'phone_number',
+        'gender',
+        'address',
+        'photo',
         'email',
         'password',
     ];
@@ -42,4 +49,18 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function dogs()
+    {
+        return $this->hasMany(Dog::class, 'customer_id', 'customer_id');
+    }
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class, 'dog_id');
+    }
+    public function getRouteKeyName()
+    {
+        return 'customer_id';
+    }
+
 }

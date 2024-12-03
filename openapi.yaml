@@ -1,0 +1,1385 @@
+openapi: 3.0.0
+info:
+  title: DoggoCare API Documentation
+  version: 1.0.0
+  description: >
+    Welcome to the **DoggoCare API Documentation**! This API enables you to manage 
+    a pet daycare system with features such as user authentication, dog profile 
+    management, boarding services, bookings, and notifications. 
+
+    ### Key Features:
+    
+    - **Authentication & Authorization:** Securely register, login, and manage user profiles using authentication via tokens.
+    
+    - **Dog Profiles:** Add, update, and delete profiles for your pets.
+    
+    - **Boarding Services:** View available boarding services with pricing and availability.
+    
+    - **Bookings:** Create and manage pet daycare bookings with WhatsApp reminders and payment integration using Midtrans.
+    
+    - **Utilities:** Test features such as the booking expiration scheduler.
+
+    This documentation is structured to help you integrate with the API effectively. Examples of JSON requests and responses are provided for clarity.
+
+    ### Prerequisites:
+    
+    - Ensure your application is set up to use authentication tokens for secure access.
+    
+    - Familiarity with tools like Postman or curl is helpful for testing API endpoints.
+
+    ### Authentication:
+    
+    Most endpoints require **Sanctum Authentication**. Use the login endpoint to retrieve your token and include it in the `Authorization` header for secured routes.
+
+servers:
+  - url: http://127.0.0.1:8000/api
+    description: Local development server
+    
+components:
+  securitySchemes:
+    sanctumAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      
+tags:
+  - name: Authentication
+    description: Endpoints related to user authentication.
+  - name: Password Management
+    description: Endpoints for password recovery and reset.
+  - name: Boarding
+    description: Endpoints related to daycare services
+  - name: User Management
+    description: Endpoints related to user information.
+  - name: Dogs Management
+    description: Endpoints related to user's dog information.
+  - name: Booking Management  
+    description: Endpoints for booking that has a reminder and involves payment gateway link.
+  - name: Utilities
+    description: Endpoint for checking whether a feature is running or not.
+    
+paths:
+  /register:
+    post:
+      tags:
+        - Authentication
+      summary: User registration
+      description: Registers a new user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                phone_number:
+                  type: string
+                email:
+                  type: string
+                gender:
+                  type: string
+                address:
+                  type: string
+                password:
+                  type: string
+              example:
+                name: John Doe
+                phone_number: "+1234567890"
+                email: john.doe@example.com
+                gender: Male
+                address: "123 Doggo Street, Petland"
+                password: "strongpassword123"
+      responses:
+        201:
+          description: User successfully registered.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  verification_url:
+                    type: string
+              example:
+                message: "User registered successfully. Please verify your email."
+                verification_url: "http://example.com/verify-email?token=abc123"
+        400:
+          description: Validation error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  errors:
+                    type: object
+              example:
+                message: "Validation Error"
+                errors:
+                  email: ["The email has already been taken."]
+                  phone_number: ["The phone number must be unique."]
+
+  /email/verify/{user}:
+    get:
+      tags:
+        - Authentication
+      summary: Verify email
+      description: Verifies a user's email using a signed URL.
+      parameters:
+        - name: user
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Email successfully verified.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                message: "Email verified successfully. Please log in."
+        403:
+          description: Invalid or expired verification link.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                message: "Invalid or expired verification link."
+
+  /login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      description: Logs in a user with their email and password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              example:
+                email: john.doe@example.com
+                password: strongpassword123
+      responses:
+        200:
+          description: Login successful.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      email:
+                        type: string
+                  token:
+                    type: string
+              example:
+                message: "Login successful"
+                user:
+                  id: 1
+                  name: John Doe
+                  email: john.doe@example.com
+                token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        401:
+          description: Invalid credentials or unverified email.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  loginError:
+                    type: string
+              example:
+                loginError: "Invalid credentials or unverified email."
+
+  /forgot-password:
+    post:
+      tags:
+        - Password Management
+      summary: Forgot password
+      description: Sends a password reset link to the user's email.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+              example:
+                email: john.doe@example.com
+      responses:
+        200:
+          description: Password reset link sent successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                message: "Password reset link sent to your email."
+        400:
+          description: Validation error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  errors:
+                    type: object
+              example:
+                message: "Validation Error"
+                errors:
+                  email: ["The email does not exist in our records."]
+
+  /reset-password/{token}:
+    post:
+      tags:
+        - Password Management
+      summary: Reset password
+      description: Resets a user's password using a reset token.
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                password_confirmation:
+                  type: string
+              example:
+                email: john.doe@example.com
+                password: newpassword123
+                password_confirmation: newpassword123
+      responses:
+        200:
+          description: Password reset successful.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                message: "Password has been reset successfully."
+        400:
+          description: Invalid or expired token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+              example:
+                message: "Invalid or expired token."
+                
+  /boardings:
+    get:
+      tags:
+        - Boarding
+      summary: List all boardings
+      description: Retrieves a list of all available boarding services.
+      responses:
+        200:
+          description: A list of all available boardings.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    boarding_id:
+                      type: integer
+                    boarding_name:
+                      type: string
+                    boarding_type:
+                      type: string
+                    boarding_description:
+                      type: string
+                    price:
+                      type: integer
+                    current_stock:
+                      type: integer
+                  example:
+                    - boarding_id: 1
+                      boarding_name: Regular Daycare
+                      boarding_type: Regular
+                      boarding_description: A comfortable stay with basic amenities.
+                      price: 50000
+                      current_stock: 10
+                    - boarding_id: 2
+                      boarding_name: Luxury Daycare
+                      boarding_type: Luxury
+                      boarding_description: Luxurious accommodations with additional amenities.
+                      price: 150000
+                      current_stock: 5
+    post:
+      tags:
+        - Boarding
+      summary: Create a new boarding service
+      description: Creates a new boarding service with the specified details.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                boarding_name:
+                  type: string
+                boarding_type:
+                  type: string
+                boarding_description:
+                  type: string
+                price:
+                  type: integer
+                current_stock:
+                  type: integer
+              example:
+                boarding_name: Regular Daycare
+                boarding_type: Regular
+                boarding_description: A comfortable stay with basic amenities.
+                price: 50000
+                current_stock: 10
+      responses:
+        201:
+          description: Boarding service created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  boarding:
+                    type: object
+                    properties:
+                      boarding_id:
+                        type: integer
+                      boarding_name:
+                        type: string
+                      boarding_type:
+                        type: string
+                      boarding_description:
+                        type: string
+                      price:
+                        type: integer
+                      current_stock:
+                        type: integer
+              example:
+                message: "Boarding service created successfully."
+                boarding:
+                  boarding_id: 3
+                  boarding_name: Regular Daycare
+                  boarding_type: Regular
+                  boarding_description: A comfortable stay with basic amenities.
+                  price: 50000
+                  current_stock: 10
+                  
+        400:
+          description: Validation error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  errors:
+                    type: object
+                example:
+                  message: "Validation Error"
+                  errors:
+                    boarding_name: ["The boarding name field is required."]
+                    price: ["The price must be a positive number."]
+  /boardings/{boarding_id}:
+    get:
+      tags:
+        - Boarding
+      summary: Retrieve a specific boarding
+      description: Retrieves the details of a specific boarding service by its ID.
+      parameters:
+        - name: boarding_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: The details of the requested boarding service.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  boarding_id:
+                    type: integer
+                  boarding_name:
+                    type: string
+                  boarding_type:
+                    type: string
+                  boarding_description:
+                    type: string
+                  price:
+                    type: integer
+                  current_stock:
+                    type: integer
+                example:
+                  boarding_id: 1
+                  boarding_name: Regular Daycare
+                  boarding_type: Regular
+                  boarding_description: A comfortable stay with basic amenities.
+                  price: 50000
+                  current_stock: 10
+        404:
+          description: Boarding service not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Boarding service not found."
+                  
+  /user:
+    get:
+      tags:
+        - User Management
+      summary: Get User Profile
+      description: Fetches the profile of the authenticated user.
+      security:
+        - sanctumAuth: []
+      responses:
+        200:
+          description: User profile retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  email:
+                    type: string
+                  phone_number:
+                    type: string
+                  gender:
+                    type: string
+                  address:
+                    type: string
+                example:
+                  id: 1
+                  name: John Doe
+                  email: johndoe@example.com
+                  phone_number: "+1234567890"
+                  gender: Male
+                  address: "123 Main St, Springfield"
+        401:
+          description: Unauthorized. Token is missing or invalid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Unauthenticated."
+
+  /user/{id}/update:
+    put:
+      tags:
+        - User Management
+      summary: Update User Profile
+      description: Updates the profile of the authenticated user.
+      security:
+        - sanctumAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                phone_number:
+                  type: string
+                gender:
+                  type: string
+                address:
+                  type: string
+              example:
+                name: Jane Doe
+                phone_number: "+9876543210"
+                gender: Female
+                address: "456 Elm St, Springfield"
+      responses:
+        200:
+          description: User profile updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      phone_number:
+                        type: string
+                      gender:
+                        type: string
+                      address:
+                        type: string
+                example:
+                  message: "Profile updated successfully."
+                  user:
+                    id: 1
+                    name: Jane Doe
+                    phone_number: "+9876543210"
+                    gender: Female
+                    address: "456 Elm St, Springfield"
+        401:
+          description: Unauthorized. Token is missing or invalid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Unauthenticated."
+        403:
+          description: Forbidden. User ID mismatch.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Unauthorized."
+
+  /update-password:
+    post:
+      tags:
+        - User Management
+      summary: Update Password
+      description: Updates the password for the authenticated user.
+      security:
+        - sanctumAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                current_password:
+                  type: string
+                new_password:
+                  type: string
+                new_password_confirmation:
+                  type: string
+              example:
+                current_password: "oldpassword123"
+                new_password: "newpassword123"
+                new_password_confirmation: "newpassword123"
+      responses:
+        200:
+          description: Password updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Password updated successfully."
+        400:
+          description: Bad Request. Validation failed or current password is incorrect.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Current password is incorrect."
+        401:
+          description: Unauthorized. Token is missing or invalid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Unauthenticated."
+
+  /logout:
+    post:
+      tags:
+        - User Management
+      summary: Logout User
+      description: Logs out the authenticated user by invalidating their token.
+      security:
+        - sanctumAuth: []
+      responses:
+        200:
+          description: Logout successful.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Successfully logged out."
+        401:
+          description: Unauthorized. Token is missing or invalid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Unauthenticated."
+
+  /delete:
+    delete:
+      tags:
+        - User Management
+      summary: Delete User Account
+      description: Deletes the account of the authenticated user.
+      security:
+        - sanctumAuth: []
+      responses:
+        200:
+          description: Account deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Account deleted successfully."
+        401:
+          description: Unauthorized. Token is missing or invalid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Unauthenticated."
+                  
+  /dogs:
+    get:
+      tags:
+        - Dogs Management
+      summary: Get All Dogs
+      description: Fetches all dog profiles associated with the authenticated user.
+      security:
+        - sanctumAuth: []
+      responses:
+        200:
+          description: Successfully retrieved all dog profiles.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    dog_id:
+                      type: integer
+                    name:
+                      type: string
+                    age:
+                      type: string
+                    weight:
+                      type: string
+                    breed:
+                      type: string
+                    color:
+                      type: string
+                    gender:
+                      type: string
+                    medical_condition:
+                      type: string
+                    customer_id:
+                      type: integer
+                example:
+                  - dog_id: 1
+                    name: Rex
+                    age: "2 years"
+                    weight: "20kg"
+                    breed: Labrador
+                    color: Golden
+                    gender: Male
+                    medical_condition: None
+                    customer_id: 10
+                  - dog_id: 2
+                    name: Bella
+                    age: "3 years"
+                    weight: "15kg"
+                    breed: Beagle
+                    color: Tricolor
+                    gender: Female
+                    medical_condition: None
+                    customer_id: 10
+        401:
+          description: Unauthorized. Token is missing or invalid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Unauthenticated."
+
+    post:
+      tags:
+        - Dogs Management
+      summary: Add New Dog
+      description: Creates a new dog profile for the authenticated user.
+      security:
+        - sanctumAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                age:
+                  type: string
+                weight:
+                  type: string
+                breed:
+                  type: string
+                color:
+                  type: string
+                gender:
+                  type: string
+                medical_condition:
+                  type: string
+              example:
+                name: Bella
+                age: "3 years"
+                weight: "15kg"
+                breed: Beagle
+                color: Tricolor
+                gender: Female
+                medical_condition: None
+      responses:
+        201:
+          description: Dog profile created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  dog:
+                    type: object
+                    properties:
+                      dog_id:
+                        type: integer
+                      name:
+                        type: string
+                      age:
+                        type: string
+                      weight:
+                        type: string
+                      breed:
+                        type: string
+                      color:
+                        type: string
+                      gender:
+                        type: string
+                      medical_condition:
+                        type: string
+                example:
+                  message: "Dog profile created successfully."
+                  dog:
+                    dog_id: 3
+                    name: Bella
+                    age: "3 years"
+                    weight: "15kg"
+                    breed: Beagle
+                    color: Tricolor
+                    gender: Female
+                    medical_condition: None
+        400:
+          description: Bad Request. Validation failed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Validation failed."
+
+  /dogs/{dog_id}:
+    get:
+      tags:
+        - Dogs Management
+      summary: Get Specific Dog
+      description: Fetches the details of a specific dog profile by ID.
+      security:
+        - sanctumAuth: []
+      parameters:
+        - name: dog_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the dog.
+      responses:
+        200:
+          description: Successfully retrieved the dog profile.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  dog_id:
+                    type: integer
+                  name:
+                    type: string
+                  age:
+                    type: string
+                  weight:
+                    type: string
+                  breed:
+                    type: string
+                  color:
+                    type: string
+                  gender:
+                    type: string
+                  medical_condition:
+                    type: string
+                example:
+                  dog_id: 1
+                  name: Rex
+                  age: "2 years"
+                  weight: "20kg"
+                  breed: Labrador
+                  color: Golden
+                  gender: Male
+                  medical_condition: None
+        404:
+          description: Dog not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Dog not found."
+        401:
+          description: Unauthorized. Token is missing or invalid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Unauthenticated."
+
+    put:
+      tags:
+        - Dogs Management
+      summary: Update Dog Profile
+      description: Updates the details of a specific dog profile by ID.
+      security:
+        - sanctumAuth: []
+      parameters:
+        - name: dog_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the dog.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                age:
+                  type: string
+                weight:
+                  type: string
+                breed:
+                  type: string
+                color:
+                  type: string
+                gender:
+                  type: string
+                medical_condition:
+                  type: string
+              example:
+                name: Bella
+                age: "3 years"
+                weight: "15kg"
+                breed: Beagle
+                color: Tricolor
+                gender: Female
+                medical_condition: None
+      responses:
+        200:
+          description: Dog profile updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  dog:
+                    type: object
+                    properties:
+                      dog_id:
+                        type: integer
+                      name:
+                        type: string
+                      age:
+                        type: string
+                      weight:
+                        type: string
+                      breed:
+                        type: string
+                      color:
+                        type: string
+                      gender:
+                        type: string
+                      medical_condition:
+                        type: string
+                example:
+                  message: "Dog profile updated successfully."
+                  dog:
+                    dog_id: 1
+                    name: Bella
+                    age: "3 years"
+                    weight: "15kg"
+                    breed: Beagle
+                    color: Tricolor
+                    gender: Female
+                    medical_condition: None
+        404:
+          description: Dog not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Dog not found."
+        401:
+          description: Unauthorized. Token is missing or invalid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Unauthenticated."
+
+    delete:
+      tags:
+        - Dogs Management
+      summary: Delete Dog Profile
+      description: Deletes a specific dog profile by ID.
+      security:
+        - sanctumAuth: []
+      parameters:
+        - name: dog_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the dog.
+      responses:
+        200:
+          description: Dog profile deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Dog profile deleted successfully."
+        404:
+          description: Dog not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Dog not found."
+        401:
+          description: Unauthorized. Token is missing or invalid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Unauthenticated."
+
+  /bookings:
+    post:
+      tags:
+        - Booking Management
+      summary: Create a Booking
+      description: Creates a new booking for the authenticated user.
+      security:
+        - sanctumAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                dog_id:
+                  type: integer
+                boarding_id:
+                  type: integer
+                booking_date:
+                  type: string
+                  format: date
+                start_time:
+                  type: string
+                  format: time
+                end_time:
+                  type: string
+                  format: time
+              example:
+                dog_id: 1
+                boarding_id: 2
+                booking_date: "2024-12-05"
+                start_time: "10:00"
+                end_time: "12:00"
+      responses:
+        201:
+          description: Booking created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  payment_link:
+                    type: string
+                  booking:
+                    type: object
+                    properties:
+                      booking_id:
+                        type: integer
+                      dog_id:
+                        type: integer
+                      boarding_id:
+                        type: integer
+                      booking_date:
+                        type: string
+                        format: date
+                      start_time:
+                        type: string
+                        format: time
+                      end_time:
+                        type: string
+                        format: time
+                      total_price:
+                        type: integer
+                example:
+                  message: "Booking created successfully. Payment link sent."
+                  payment_link: "https://midtrans.com/pay/BOOKING-12345"
+                  booking:
+                    booking_id: 123
+                    dog_id: 1
+                    boarding_id: 2
+                    booking_date: "2024-12-05"
+                    start_time: "10:00"
+                    end_time: "12:00"
+                    total_price: 50000
+        400:
+          description: Bad Request. Validation failed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Validation failed."
+        401:
+          description: Unauthorized. Token is missing or invalid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Unauthenticated."
+
+    get:
+      tags:
+        - Booking Management
+      summary: Get All Bookings
+      description: Fetches all bookings associated with the authenticated user.
+      security:
+        - sanctumAuth: []
+      responses:
+        200:
+          description: Successfully retrieved all bookings.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    booking_id:
+                      type: integer
+                    dog_id:
+                      type: integer
+                    boarding_id:
+                      type: integer
+                    booking_date:
+                      type: string
+                      format: date
+                    start_time:
+                      type: string
+                      format: time
+                    end_time:
+                      type: string
+                      format: time
+                    total_price:
+                      type: integer
+                  example:
+                    booking_id: 123
+                    dog_id: 1
+                    boarding_id: 2
+                    booking_date: "2024-12-05"
+                    start_time: "10:00"
+                    end_time: "12:00"
+                    total_price: 50000
+        401:
+          description: Unauthorized. Token is missing or invalid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Unauthenticated."
+
+  /bookings/{booking_id}:
+    get:
+      tags:
+        - Booking Management
+      summary: Get Specific Booking
+      description: Fetches the details of a specific booking by ID.
+      security:
+        - sanctumAuth: []
+      parameters:
+        - name: booking_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the booking.
+      responses:
+        200:
+          description: Successfully retrieved the booking details.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  booking_id:
+                    type: integer
+                  dog_id:
+                    type: integer
+                  boarding_id:
+                    type: integer
+                  booking_date:
+                    type: string
+                    format: date
+                  start_time:
+                    type: string
+                    format: time
+                  end_time:
+                    type: string
+                    format: time
+                  total_price:
+                    type: integer
+                example:
+                  booking_id: 123
+                  dog_id: 1
+                  boarding_id: 2
+                  booking_date: "2024-12-05"
+                  start_time: "10:00"
+                  end_time: "12:00"
+                  total_price: 50000
+        404:
+          description: Booking not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Booking not found."
+        401:
+          description: Unauthorized. Token is missing or invalid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Unauthenticated."
+
+  /test-scheduler:
+    get:
+      tags:
+        - Utilities
+      summary: Test the Booking Expiration Scheduler
+      description: Executes the `bookings:check-expirations` command to test the booking expiration functionality.
+      responses:
+        200:
+          description: Scheduler command executed successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Scheduler command executed successfully."
+        500:
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "An error occurred while executing the scheduler command."
