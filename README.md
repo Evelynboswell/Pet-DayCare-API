@@ -134,6 +134,7 @@ DoggoCare is a user-friendly reservation and booking system designed specificall
       ```bash
       DELETE /api/bookings/{booking_id}
       ```
+View the API documentation using Swagger Editor: https://editor.swagger.io/?url=https://raw.githubusercontent.com/Evelynboswell/Pet-DayCare-API/main/openapi.yaml
 
 ## 🛠️ Getting Started  
 
