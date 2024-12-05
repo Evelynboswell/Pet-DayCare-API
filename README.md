@@ -1,53 +1,174 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🐾 DoggoCare - Dog Daycare Reservation System 🐾  
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Welcome to **DoggoCare**, the ultimate solution for dog daycare reservations! 
 
-## About Laravel
+## 📖 About the Project  
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+DoggoCare is a user-friendly reservation and booking system designed specifically for dog daycare services.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## ✨ Key Features  
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **User Management**  
+  Effortlessly register, log in, and manage your account. Email verification ensures secure access.  
 
-## Learning Laravel
+- **Dog Profile Management**  
+  Keep detailed profiles for each furry friend, including their name, breed, and special needs.  
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- **WhatsApp Notifications**  
+  Never miss an appointment with automated WhatsApp reminders sent before upcoming reservations.  
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- **Online Payments**  
+  Secure and convenient payment processing powered by the Midtrans payment gateway.  
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- **Appointment Scheduling**  
+  A hassle-free way to book and manage daycare appointments.  
 
-## Laravel Sponsors
+## 🔧 Technologies Used  
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- **Backend**: Laravel 10  
+- **Database**: MySQL  
+- **Development Tools**:  
+  - VSCode  
+  - Postman (for API testing)  
 
-### Premium Partners
+## 🌐 APIs Integrated  
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+- **[Fonnte API](https://fonnte.com)**  
+  Simplified WhatsApp notifications for seamless communication.  
+
+- **[Midtrans API](https://midtrans.com)**  
+  A trusted payment gateway for secure transactions.  
+
+## 🔚 Endpoints
+1. User Management
+    - Register new account
+      ```bash
+      POST /api/register
+      ```
+    - Authenticate user and give access token
+      ```bash
+      POST /api/login
+      ```
+    - Logout
+      ```bash 
+      POST /api/logout
+      ```
+    - Retrieve user information
+      ```bash
+      GET /api/user
+      ```
+    - Update user information
+      ```bash
+       PUT /api/user/{id}/update
+      ```
+    - Send link to reset password through email
+      ```bash
+      POST /api/forgot-password
+      ```
+    - Reset user's password
+      ```bash
+      POST /api/reset-password
+      ```
+    - Delete account
+      ```bash
+      DELETE /api/delete
+      ```
+
+
+2. Dog Profile Management
+    - Retrive user's dog(s) information
+      ```bash
+      GET /api/dogs
+      ```
+    - Add new dog
+      ```bash
+      POST /api/dogs
+      ```
+    - Retrieve information of a specific dog
+      ```bash
+      GET /api/dogs/{dog_id}
+      ```
+    - Update dog information
+      ```bash
+      PUT /api/dogs/{dog_id}
+      ```
+    - Delete dog information
+      ```bash
+      DELETE /api/dogs/{dog_id}
+      ```
+
+   
+3. Boarding
+    - Retrieve list of services available at the daycare
+      ```bash
+      GET /api/boardings
+      ```
+    - Retrieve a certain boarding service's information
+      ```bash
+      GET /api/boardings/{boarding_id}
+      ```
+    - Create new boarding services
+      ```bash
+      POST /api/boardings
+      ```
+
+      
+4. Booking Appointment
+    - Create a new appointment
+      ```bash
+      POST /api/bookings
+      ```
+    - Retrieve list of made appointments
+      ```bash
+      GET /api/bookings
+      ```
+    - Retrieve a certain appointment's information
+      ```bash
+      GET /api/bookings/{booking_id}
+      ```
+    - Update a certain appointment's information
+      ```bash
+      PUT /api/bookings/{booking_id}
+      ```
+    - Delete or Cancel appointment
+      ```bash
+      DELETE /api/bookings/{booking_id}
+      ```
+
+## 🛠️ Getting Started  
+
+Follow these steps to set up DoggoCare on your local machine:  
+
+### Prerequisites  
+
+- PHP >= 8.1  
+- Composer  
+- MySQL  
+- Node.js & npm (for frontend assets)
+- Midtrans account (to get the Server and Client keys)
+- Fonnte account (to get the token)
+
+### Installation
+1. Clone the repository
+2. Install dependencies
+   ```bash
+   composer install
+   npm install
+   composer require midtrans/midtrans-php
+3. Set up environment details
+   - Database credentials
+   - Fonnte API token
+   - Midtrans API keys
+4. Run migrations and seeders
+   ```bash
+   php artisan migrate
+   php artisan db:seed  
+5. Scheduler setup
+   ```bash
+   php artisan schedule:run   
+6. Run the server
+   ```bash
+   php artisan serve
 
 ## Contributing
 
@@ -56,10 +177,6 @@ Thank you for considering contributing to the Laravel framework! The contributio
 ## Code of Conduct
 
 In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
 ## License
 
