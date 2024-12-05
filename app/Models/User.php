@@ -54,10 +54,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Dog::class, 'customer_id', 'customer_id');
     }
-
-    public function booking()
+    public function bookings()
     {
-        return $this->hasMany(Booking::class);
+        return $this->hasMany(Booking::class, 'dog_id');
     }
     public function getRouteKeyName()
     {

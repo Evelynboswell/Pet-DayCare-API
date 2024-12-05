@@ -90,10 +90,21 @@ class AuthController extends Controller
             if ($request->expectsJson()) {
                 return response()->json($errorMessage, 401);
             }
+
             return back()->withErrors($errorMessage)->withInput();
         }
+
         auth()->login($user);
-        return redirect()->route('dashboard');
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Login successful',
+                'user' => $user,
+                'token' => $user->createToken('doggocare')->plainTextToken,
+            ], 200);
+        }
+
+        return redirect()->route('dashboard')->with('message', 'Login successful!');
     }
 
     public function getUserProfile(Request $request)
@@ -215,7 +226,7 @@ class AuthController extends Controller
 
         if ($request->hasFile('photo')) {
             if ($user->photo && file_exists(public_path('storage/' . $user->photo))) {
-                unlink(public_path('storage/' . $user->photo)); 
+                unlink(public_path('storage/' . $user->photo));
             }
 
             $photo = $request->file('photo');
@@ -225,7 +236,7 @@ class AuthController extends Controller
             $photo->storeAs('public/profile_photos', $photoName);
 
             $user->photo = 'profile_photos/' . $photoName;
-            $user->save(); 
+            $user->save();
         }
         return redirect()->route('profile.edit')->with('success', 'Profile photo updated successfully');
     }

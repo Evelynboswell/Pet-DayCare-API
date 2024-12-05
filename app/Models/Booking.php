@@ -4,20 +4,27 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Booking extends Model
 {
     use HasFactory;
+
     protected $table = 'bookings';
     protected $primaryKey = 'booking_id';
+
     protected $fillable = [
         'dog_id',
         'boarding_id',
         'booking_date',
-        'total_price'
+        'start_time',
+        'end_time',
+        'total_price',
+        'status'
     ];
+
     protected $dates = [
-        'booking_date'
+        'booking_date',
     ];
     public function dogs()
     {

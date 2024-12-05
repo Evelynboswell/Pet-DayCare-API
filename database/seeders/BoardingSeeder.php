@@ -11,8 +11,8 @@ class BoardingSeeder extends Seeder
     {
         Boarding::insert([
             [
-                'boarding_name' => 'Standard Daycare',
-                'boarding_type' => 'Standard',
+                'boarding_name' => 'Reguler Daycare',
+                'boarding_type' => 'Reguler',
                 'boarding_description' => 'A comfortable stay with basic amenities.',
                 'price' => 50000,
                 'current_stock' => 10,

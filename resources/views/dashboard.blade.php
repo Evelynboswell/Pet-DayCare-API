@@ -19,6 +19,7 @@
             background-image: url(images/smallPawPrintsBG.png);
             background-attachment: fixed;
             overflow: hidden;
+            background-color: #FFBF00;
         }
 
         .second-container {
@@ -171,8 +172,8 @@
                         <a href="#">See all</a>
                     </div>
                     <div class="pets-list">
-                        <table class="pets-table">
-                            {{-- <tr>
+                        {{-- <table class="pets-table">
+                            <tr>
                                 @foreach ($dogs as $dog)
                                     @if ($loop->index == 0)
                                         <td>
@@ -202,7 +203,7 @@
                                     @endif
                                 @endforeach
                             </tr>
-                    
+
                             @php $dogIndex = 2; @endphp
                             @for ($i = $dogIndex; $i < count($dogs); $i += 3)
                                 <tr>
@@ -216,8 +217,8 @@
                                         </td>
                                     @endfor
                                 </tr>
-                            @endfor --}}
-                        </table>
+                            @endfor
+                        </table> --}}
                     </div>
                 </div>
                 <div class="services-container">
