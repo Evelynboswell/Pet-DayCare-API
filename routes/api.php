@@ -58,11 +58,11 @@ Route::get('/boardings', [BoardingController::class, 'index']);
 Route::get('/boardings/{boarding_id}', [BoardingController::class, 'show']);
 Route::post('/boardings', [BoardingController::class, 'store']);
 
-//Test Task Scheduler
-Route::get('/test-scheduler', function () {
-    Artisan::call('bookings:check-expirations');
-    return response()->json(['message' => 'Scheduler command executed successfully.']);
-});
+// //Test Task Scheduler
+// Route::get('/test-scheduler', function () {
+//     Artisan::call('bookings:check-expirations');
+//     return response()->json(['message' => 'Scheduler command executed successfully.']);
+// });
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();

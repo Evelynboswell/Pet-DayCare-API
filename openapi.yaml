@@ -3,45 +3,43 @@ info:
   title: DoggoCare API Documentation
   version: 1.0.0
   description: >
-    Welcome to the **DoggoCare API Documentation**! This API enables you to manage 
-    a pet daycare system with features such as user authentication, dog profile 
-    management, boarding services, bookings, and notifications. 
+    Welcome to the **DoggoCare API Documentation**! This API enables you to manage
+    a pet daycare system with features such as user authentication, dog profile
+    management, boarding services, bookings, and notifications.
 
     ### Key Features:
-    
+
     - **Authentication & Authorization:** Securely register, login, and manage user profiles using authentication via tokens.
-    
+
     - **Dog Profiles:** Add, update, and delete profiles for your pets.
-    
+
     - **Boarding Services:** View available boarding services with pricing and availability.
-    
+
     - **Bookings:** Create and manage pet daycare bookings with WhatsApp reminders and payment integration using Midtrans.
-    
-    - **Utilities:** Test features such as the booking expiration scheduler.
 
     This documentation is structured to help you integrate with the API effectively. Examples of JSON requests and responses are provided for clarity.
 
     ### Prerequisites:
-    
+
     - Ensure your application is set up to use authentication tokens for secure access.
-    
+
     - Familiarity with tools like Postman or curl is helpful for testing API endpoints.
 
     ### Authentication:
-    
+
     Most endpoints require **Sanctum Authentication**. Use the login endpoint to retrieve your token and include it in the `Authorization` header for secured routes.
 
 servers:
   - url: http://127.0.0.1:8000/api
     description: Local development server
-    
+
 components:
   securitySchemes:
     sanctumAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      
+
 tags:
   - name: Authentication
     description: Endpoints related to user authentication.
@@ -53,11 +51,9 @@ tags:
     description: Endpoints related to user information.
   - name: Dogs Management
     description: Endpoints related to user's dog information.
-  - name: Booking Management  
+  - name: Booking Management
     description: Endpoints for booking that has a reminder and involves payment gateway link.
-  - name: Utilities
-    description: Endpoint for checking whether a feature is running or not.
-    
+
 paths:
   /register:
     post:
@@ -86,7 +82,7 @@ paths:
                   type: string
               example:
                 name: John Doe
-                phone_number: "+1234567890"
+                phone_number: "0123456789"
                 email: john.doe@example.com
                 gender: Male
                 address: "123 Doggo Street, Petland"
@@ -316,7 +312,7 @@ paths:
                     type: string
               example:
                 message: "Invalid or expired token."
-                
+
   /boardings:
     get:
       tags:
@@ -420,7 +416,7 @@ paths:
                   boarding_description: A comfortable stay with basic amenities.
                   price: 50000
                   current_stock: 10
-                  
+
         400:
           description: Validation error.
           content:
@@ -487,7 +483,7 @@ paths:
                     type: string
                 example:
                   message: "Boarding service not found."
-                  
+
   /user:
     get:
       tags:
@@ -747,7 +743,7 @@ paths:
                     type: string
                 example:
                   message: "Unauthenticated."
-                  
+
   /dogs:
     get:
       tags:
@@ -1353,33 +1349,3 @@ paths:
                     type: string
                 example:
                   message: "Unauthenticated."
-
-  /test-scheduler:
-    get:
-      tags:
-        - Utilities
-      summary: Test the Booking Expiration Scheduler
-      description: Executes the `bookings:check-expirations` command to test the booking expiration functionality.
-      responses:
-        200:
-          description: Scheduler command executed successfully.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                example:
-                  message: "Scheduler command executed successfully."
-        500:
-          description: Internal Server Error.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                example:
-                  message: "An error occurred while executing the scheduler command."
