@@ -172,8 +172,9 @@ class AuthController extends Controller
         $bookings = $user->bookings()
             ->with(['dogs', 'boardings'])
             ->get();
-
-        return view('dashboard', compact('bookings'));
+            
+        $dogs = $user->dogs()->get();
+        return view('dashboard', compact('bookings', 'dogs'));
     }
     public function editProfile()
     {

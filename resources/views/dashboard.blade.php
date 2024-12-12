@@ -83,7 +83,7 @@
 
         .pets-container {
             width: 50%;
-            height: 230px;
+            height: 240px;
             background-color: white;
             padding: 30px;
             border-radius: 10px;
@@ -93,6 +93,13 @@
         .pets-text {
             display: flex;
             justify-content: space-between;
+        }
+        .pets-text a {
+            color: grey;
+            text-decoration: none;
+        }
+        .pets-text a:hover {
+            color: black;
         }
 
         .pets-list {
@@ -172,25 +179,27 @@
                         <a href="#">See all</a>
                     </div>
                     <div class="pets-list">
-                        {{-- <table class="pets-table">
+                        <table class="pets-table">
                             <tr>
                                 @foreach ($dogs as $dog)
                                     @if ($loop->index == 0)
                                         <td>
-                                            <a href="#" class="pet-icon" data-inactive="components.svg_dogInactive" data-active="components.svg_dogActive">
-                                                @include('components.svg_dogInactive')
+                                            <a href="#" class="pet-icon" data-inactive="components.dog_inactive" data-active="components.dog_active">
+                                                @include('components.dog_inactive')
                                             </a>
                                             <br>
                                             <label>{{ $dog->name }}</label>
                                         </td>
+                                        <td style="width: 20px;"></td>
                                     @elseif ($loop->index == 1)
                                         <td>
-                                            <a href="#" class="pet-icon" data-inactive="components.svg_dogInactive" data-active="components.svg_dogActive">
-                                                @include('components.svg_dogInactive')
+                                            <a href="#" class="pet-icon" data-inactive="components.dog_inactive" data-active="components.dog_active">
+                                                @include('components.dog_inactive')
                                             </a>
                                             <br>
                                             <label>{{ $dog->name }}</label>
                                         </td>
+                                        <td style="width: 20px;"></td>
                                         <td class="add-pet">
                                             <a href="#" class="pet-icon" data-inactive="components.svg_plusInactive" data-active="components.svg_plusActive">
                                                 @include('components.svg_plusInactive')
@@ -198,6 +207,7 @@
                                             <br>
                                             <label>Add Pet</label>
                                         </td>
+                                        <td style="width: 20px;"></td>
                                     @else
                                         @break
                                     @endif
@@ -209,54 +219,17 @@
                                 <tr>
                                     @for ($j = 0; $j < 3 && $i + $j < count($dogs); $j++)
                                         <td>
-                                            <a href="#" class="pet-icon" data-inactive="components.svg_dogInactive" data-active="components.svg_dogActive">
-                                                @include('components.svg_dogInactive')
+                                            <a href="#" class="pet-icon" data-inactive="components.dog_inactive" data-active="components.dog_active">
+                                                @include('components.svg_dog_inactive')
                                             </a>
                                             <br>
                                             <label>{{ $dogs[$i + $j]->name }}</label>
                                         </td>
+                                        <td style="width: 20px;"></td>
                                     @endfor
                                 </tr>
                             @endfor
-                        </table> --}}
-                    </div>
-                </div>
-                <div class="services-container">
-                    <h5>Book Our Services</h5>
-                    <div class="services-list">
-                        <div>
-                            <a href="#" class="services-icon">
-                                <div class="svg-inactive">
-                                    @include('components.svg_daycareInactive')
-                                </div>
-                                <div class="svg-active" style="display: none;">
-                                    @include('components.svg_daycareActive')
-                                </div>
-                            </a>
-                            <label>Daycare</label>
-                        </div>
-                        <div>
-                            <a href="#" class="services-icon">
-                                <div class="svg-inactive">
-                                    @include('components.svg_groomingInactive')
-                                </div>
-                                <div class="svg-active" style="display: none;">
-                                    @include('components.svg_groomingActive')
-                                </div>
-                            </a>
-                            <label>Grooming</label>
-                        </div>
-                        <div>
-                            <a href="#" class="services-icon">
-                                <div class="svg-inactive">
-                                    @include('components.svg_trainingInactive')
-                                </div>
-                                <div class="svg-active" style="display: none;">
-                                    @include('components.svg_trainingActive')
-                                </div>
-                            </a>
-                            <label>Training</label>
-                        </div>
+                        </table>
                     </div>
                 </div>
             </div>
