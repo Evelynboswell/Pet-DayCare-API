@@ -21,12 +21,14 @@
         }
 
         .picture_div img {
-            height: 715px;
+            /* height: 715px; */
+            height: 100vh;
         }
 
         .text_div {
             padding-top: 50px;
-            margin-top: -700px;
+            /* margin-top: -700px; */
+            margin-top: -100vh;
             color: white;
             text-align: center;
         }
@@ -60,8 +62,10 @@
             margin: auto;
             margin-top: 20px;
             background-color: white;
-            height: 350px;
-            width: 470px;
+            /* height: 350px; */
+            /* width: 470px; */
+            height: 22rem;
+            width: 35rem;
             padding: 30px;
             border-radius: 15px;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
@@ -110,8 +114,10 @@
         }
 
         button {
-            margin-top: 20px;
-            margin-left: 120px;
+            /* margin-top: 20px; */
+            /* margin-left: 120px; */
+            margin-top: 2vh; 
+            margin-left: 9vw;
             padding: 8px 50px;
             font-size: 22px;
             color: #ffffff;

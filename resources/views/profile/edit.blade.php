@@ -58,15 +58,19 @@
             justify-content: space-between;
         }
         .form-group input, .form-group select {
-            width: 395px;
-            height: 40px;
+            /* width: 395px; */
+            /* height: 40px; */
+            width: 25vw;
+            height: 5.5vh;
             background-color: #F0F0F0;
             border: none;
             border-radius: 5px;
             padding-left: 20px;
         }
         .form-group input[type=password] {
-            width: 260px;
+            /* width: 260px; */
+            width: 17vw;
+            height: 5.5vh;
         }
         button {
             margin-top: 10px;

@@ -34,7 +34,8 @@
             width: 75%;
             height: 300px;
             max-height: 400px;
-            margin-top: -650px;
+            /* margin-top: -650px; */
+            margin-top: -90vh;
             margin-left: 300px;
             background-color: white;
             padding: 30px;

@@ -19,17 +19,20 @@
         .picture_div {
             height: fit-content;
             width: fit-content;
-            margin-top: 55px;
+            margin-top: 10vh;
         }
 
         .picture_div img {
-            height: 650px;
-            width: 1450px;
+            height: 90vh;
+            width: 90vw;
+            /* height: 650px; */
+            /* width: 1450px; */
         }
 
         .text_div {
             padding-top: 50px;
-            margin-top: -730px;
+            /* margin-top: -730px; */
+            margin-top: -100vh;
             color: white;
             text-align: center;
         }

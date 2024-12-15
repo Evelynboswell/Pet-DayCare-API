@@ -23,11 +23,12 @@
             margin-left: 190px;
         }
         img {
-            height: 915px;
+            /* height: 915px; */
+            height: 130vh;
         }
         .buttons_div {
             position: relative;
-            margin-top: -470px;
+            margin-top: -70vh;
         }
         .text_div {
             position: relative;
