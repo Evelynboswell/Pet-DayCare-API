@@ -54,7 +54,10 @@ class AuthController extends Controller
 
         Mail::to($user->email)->send(new VerifyEmail($verificationUrl));
 
-        return response()->redirectToRoute('verifyEmail');
+        return response()->json([
+            'message' => 'User registered successfully. Please verify your email.',
+            'verification_url' => $verificationUrl,
+        ], 201);
     }
 
     public function verifyEmail(Request $request, $user)
@@ -72,7 +75,7 @@ class AuthController extends Controller
         $user->email_verified_at = now();
         $user->save();
 
-        return redirect()->route('loginView')->with('message', 'Email verified successfully. Please log in.');
+        return response()->json(['message' => 'Email verified successfully. Please login now'], 200);
     }
 
     public function login(Request $request)
@@ -172,7 +175,7 @@ class AuthController extends Controller
         $bookings = $user->bookings()
             ->with(['dogs', 'boardings'])
             ->get();
-            
+
         $dogs = $user->dogs()->get();
         return view('dashboard', compact('bookings', 'dogs'));
     }
